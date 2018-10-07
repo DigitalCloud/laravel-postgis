@@ -15,7 +15,7 @@ trait Postgis
      * @param Point $location
      * @return Builder
      */
-    public function scopeWithDistance(Builder $query, Point $location)
+    public function scopeWithDistance(Builder $query, Point $location = null)
     {
         $classQuery = $query->getQuery();
 
@@ -31,7 +31,10 @@ trait Postgis
             $division = 1000;
         }
 
-        $q = "ST_Distance({$this->getLocationColumn()},ST_GeomFromText('POINT({$location->getLng()} {$location->getLat()})',4326))/{$division}";
+        $longitude = $location->getLng() ?? null;
+        $latitude = $location->getLat() ?? null;
+
+        $q = "ST_Distance({$this->getLocationColumn()},ST_GeomFromText('POINT({$longitude} {$latitude})',4326))/{$division}";
 
         return $query->selectSub($q, 'distance');
     }
@@ -43,7 +46,7 @@ trait Postgis
      * @param float $outer_radius
      * @return Builder
      */
-    public function scopeWithGeofence(Builder $query, Point $location, $inner_radius, $outer_radius)
+    public function scopeWithGeofence(Builder $query, Point $location = null, $inner_radius = 0, $outer_radius = 0)
     {
         $query = $this->scopeWithDistance($query, $location);
 
@@ -53,11 +56,11 @@ trait Postgis
     /**
      * @param Builder $query
      * @param Point $location
-     * @param float $inner_radius
-     * @param float $outer_radius
+     * @param float $operator
+     * @param float $units
      * @return Builder
      */
-    public function scopeWhereDistance(Builder $query, Point $location, $operator, $units)
+    public function scopeWhereDistance(Builder $query, Point $location = null, $operator = '>', $units = 0)
     {
         $classQuerry = $query->getQuery();
 
@@ -65,7 +68,10 @@ trait Postgis
             $query->select([$classQuerry->from . '.*']);
         }
 
-        $q = "ST_Distance({$this->getLocationColumn()},ST_GeomFromText('POINT({$location->getLng()} {$location->getLat()})',4326))";
+        $longitude = $location->getLng() ?? null;
+        $latitude = $location->getLat() ?? null;
+
+        $q = "ST_Distance({$this->getLocationColumn()},ST_GeomFromText('POINT({$longitude} {$latitude})',4326))";
 
         return $query->whereRaw("$q {$operator} {$units}");
     }
