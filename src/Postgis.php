@@ -83,4 +83,5 @@ trait Postgis
 
         return $this->getTable() . '.' . $column;
     }
+
 }
