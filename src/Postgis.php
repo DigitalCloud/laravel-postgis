@@ -17,10 +17,10 @@ trait Postgis
      */
     public function scopeWithDistance(Builder $query, Point $location)
     {
-        $classQuerry = $query->getQuery();
+        $classQuery = $query->getQuery();
 
-        if ($classQuerry && !$classQuerry->columns) {
-            $query->select([$classQuerry->from . '.*']);
+        if ($classQuery && !$classQuery->columns) {
+            $query->select([$classQuery->from . '.*']);
         }
 
         $division = 1;
@@ -73,7 +73,7 @@ trait Postgis
 
     public function getLocationColumn()
     {
-        $column = defined('static::LOCATION') ? static::LATITUDE : 'location';
+        $column = defined('static::LOCATION') ? static::LOCATION : 'location';
 
         return $this->getTable() . '.' . $column;
     }
