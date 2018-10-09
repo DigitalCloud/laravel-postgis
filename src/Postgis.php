@@ -15,14 +15,13 @@ trait Postgis
      * @param Point $location
      * @return Builder
      */
-    public function scopeWithDistance(Builder $query, Point $location = null)
+    public function scopeWithDistance(Builder $query, $location)
     {
         $classQuery = $query->getQuery();
 
         if ($classQuery && !$classQuery->columns) {
             $query->select([$classQuery->from . '.*']);
         }
-
 
         if ($location) {
             $longitude = $location->getLng();
@@ -58,7 +57,7 @@ trait Postgis
      * @param float $units
      * @return Builder
      */
-    public function scopeWhereDistance(Builder $query, Point $location, $operator, $units)
+    public function scopeWhereDistance(Builder $query, $location, $operator, $units)
     {
         $classQuery = $query->getQuery();
 
@@ -66,10 +65,10 @@ trait Postgis
             $query->select([$classQuery->from . '.*']);
         }
 
-        $longitude = $location ? $location->getLng() : null;
-        $latitude = $location ? $location->getLat() : null;
+        if ($location) {
+            $longitude = $location->getLng();
+            $latitude = $location->getLat();
 
-        if ($longitude && $latitude) {
             $q = "ST_Distance({$this->getLocationColumn()},ST_Point({$longitude},{$latitude}))";
         } else {
             $q = "0";
@@ -101,5 +100,4 @@ trait Postgis
 
         return $division;
     }
-
 }
