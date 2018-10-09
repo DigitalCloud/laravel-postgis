@@ -23,18 +23,16 @@ trait Postgis
             $query->select([$classQuery->from . '.*']);
         }
 
-        $division = 1;
 
-        if (property_exists(static::class, 'unit') && static::$unit == "mile") {
-            $division = 0.000621371;
-        } elseif (property_exists(static::class, 'unit') && static::$unit == "km") {
-            $division = 1000;
+        if ($location) {
+            $longitude = $location->getLng();
+            $latitude = $location->getLat();
+            $division = $this->getDivisionFactor();
+
+            $q = "ST_Distance({$this->getLocationColumn()},ST_Point({$longitude},{$latitude}))/{$division}";
+        } else {
+            $q = "0";
         }
-
-        $longitude = $location->getLng() ?? null;
-        $latitude = $location->getLat() ?? null;
-
-        $q = "ST_Distance({$this->getLocationColumn()},ST_GeomFromText('POINT({$longitude} {$latitude})',4326))/{$division}";
 
         return $query->selectSub($q, 'distance');
     }
@@ -42,8 +40,8 @@ trait Postgis
     /**
      * @param Builder $query
      * @param Point $location
-     * @param float $inner_radius
-     * @param float $outer_radius
+     * @param  $inner_radius
+     * @param  $outer_radius
      * @return Builder
      */
     public function scopeWithGeofence(Builder $query, Point $location = null, $inner_radius = 0, $outer_radius = 0)
@@ -60,28 +58,48 @@ trait Postgis
      * @param float $units
      * @return Builder
      */
-    public function scopeWhereDistance(Builder $query, Point $location = null, $operator = '>', $units = 0)
+    public function scopeWhereDistance(Builder $query, Point $location, $operator, $units)
     {
-        $classQuerry = $query->getQuery();
+        $classQuery = $query->getQuery();
 
-        if ($classQuerry && !$classQuerry->columns) {
-            $query->select([$classQuerry->from . '.*']);
+        if ($classQuery && !$classQuery->columns) {
+            $query->select([$classQuery->from . '.*']);
         }
 
-        $longitude = $location->getLng() ?? null;
-        $latitude = $location->getLat() ?? null;
+        $longitude = $location ? $location->getLng() : null;
+        $latitude = $location ? $location->getLat() : null;
 
-        $q = "ST_Distance({$this->getLocationColumn()},ST_GeomFromText('POINT({$longitude} {$latitude})',4326))";
+        if ($longitude && $latitude) {
+            $q = "ST_Distance({$this->getLocationColumn()},ST_Point({$longitude},{$latitude}))";
+        } else {
+            $q = "0";
+        }
 
         return $query->whereRaw("$q {$operator} {$units}");
     }
 
-
     public function getLocationColumn()
     {
-        $column = defined('static::LOCATION') ? static::LOCATION : 'location';
+        $column = 'location';
+
+        if (property_exists($this, 'location') && $this->location) {
+            $column = $this->location;
+        }
 
         return $this->getTable() . '.' . $column;
+    }
+
+    private function getDivisionFactor()
+    {
+        $division = 1;
+
+        if (property_exists($this, 'unit') && $this->unit == "mile") {
+            $division = 0.000621371;
+        } elseif (property_exists($this, 'unit') && $this->unit == "km") {
+            $division = 1000;
+        }
+
+        return $division;
     }
 
 }
