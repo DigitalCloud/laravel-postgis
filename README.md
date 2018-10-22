@@ -43,7 +43,7 @@ protected $column = "my_column";
 
 ### Functions
 
-#### 1. Distance
+#### 1. withDistance
 get the distance between point and other points
 ```PHP
 UserLocation::withDistance(new Point($atitude,$longitude))
@@ -55,7 +55,7 @@ UserLocation::withDistance(new Point($atitude,$longitude))
 #### 2. whereDistance
 check the distance between a point and other points in database
 ```PHP
-       UserLocation::WhereDistance(new Point($atitude,$longitude), ">", 50)
+       UserLocation::whereDistance(new Point($atitude,$longitude), ">", 50)
             ->with("user")
             ->whereIn("user_id", $users)
             ->get();
