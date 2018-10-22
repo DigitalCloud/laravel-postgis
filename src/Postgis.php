@@ -24,8 +24,13 @@ trait Postgis
         }
 
         if ($location) {
-            $longitude = $location->getLng();
-            $latitude = $location->getLat();
+            if ($location instanceof Point) {
+                $longitude = $location->getLng();
+                $latitude = $location->getLat();
+            } else {
+                list($longitude, $latitude) = explode(",", $location);
+            }
+
             $division = $this->getDivisionFactor();
 
             $q = "ST_Distance({$this->getLocationColumn()},ST_Point({$longitude},{$latitude}))/{$division}";
@@ -34,20 +39,6 @@ trait Postgis
         }
 
         return $query->selectSub($q, 'distance');
-    }
-
-    /**
-     * @param Builder $query
-     * @param Point $location
-     * @param  $inner_radius
-     * @param  $outer_radius
-     * @return Builder
-     */
-    public function scopeWithGeofence(Builder $query, Point $location = null, $inner_radius = 0, $outer_radius = 0)
-    {
-        $query = $this->scopeWithDistance($query, $location);
-
-        return $query->havingRaw("distance BETWEEN {$inner_radius} AND {$outer_radius}");
     }
 
     /**
@@ -66,8 +57,12 @@ trait Postgis
         }
 
         if ($location) {
-            $longitude = $location->getLng();
-            $latitude = $location->getLat();
+            if ($location instanceof Point) {
+                $longitude = $location->getLng();
+                $latitude = $location->getLat();
+            } else {
+                list($latitude, $longitude) = $location;
+            }
 
             $q = "ST_Distance({$this->getLocationColumn()},ST_Point({$longitude},{$latitude}))";
         } else {
@@ -77,7 +72,7 @@ trait Postgis
         return $query->whereRaw("$q {$operator} {$units}");
     }
 
-    public function getLocationColumn()
+    private function getLocationColumn()
     {
         $column = 'location';
 
