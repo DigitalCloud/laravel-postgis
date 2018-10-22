@@ -16,7 +16,7 @@ composer require digitalcloud/laravel-postgis
 
 ## Usage
 
-1 . Change trait used in model from `notifable` to `MultilingualNotifiable`
+1 . First of all use `Postgis` trait in your model
 ```PHP
 <?php
 
