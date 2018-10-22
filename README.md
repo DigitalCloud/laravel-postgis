@@ -8,7 +8,7 @@ This package implemented for calculate or check the distance between point and o
 the package used [Laravel postgis extension](https://github.com/njbarrett/laravel-postgis) to deal with postgres database points in laravel,
 so if need more details or how to enable postgis extension in php see previous link.
 
-To get the latest version of Laravel multilingual notification, simply require the project using [Composer](https://getcomposer.org):
+To get the latest version of Laravel PostGIS, simply require the project using [Composer](https://getcomposer.org):
 
 ```bash
 composer require digitalcloud/laravel-postgis
