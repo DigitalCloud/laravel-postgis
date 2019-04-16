@@ -33,7 +33,7 @@ class UserLocation extends Model
 
 2 . By default package assume that the name of the point column is `location` if you want to change it override `location` variable on your model
 ```PHP
-protected $column = "my_column";
+protected $location = "my_column";
 ```
 
 3 . Also By default package assume that the unit of distance is `meter` if you want to change it override `unit` variable on your model
