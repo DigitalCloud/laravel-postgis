@@ -3,8 +3,8 @@
 namespace Digitalcloud\Postgis;
 
 use Illuminate\Database\Eloquent\Builder;
-use Phaza\LaravelPostgis\Eloquent\PostgisTrait;
-use Phaza\LaravelPostgis\Geometries\Point;
+use MStaack\LaravelPostgis\Eloquent\PostgisTrait;
+use MStaack\LaravelPostgis\Geometries\Point;
 
 trait Postgis
 {
